@@ -1,27 +1,33 @@
 var express = require('express');
 var router = express.Router();
 var fs = require('fs');
+var path = require('path');
 
-// Página principal (opcional)
+// Ruta del directorio donde se guardarán los archivos de log
+const logsDir = path.join(__dirname, '/../public/logs');
+
+// Asegurarse de que el directorio de logs exista, si no, créalo
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+}
+
+// Página principal
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Data-Logger' });
 });
 
-// Endpoint de grabación (cambia GET por POST)
+// Endpoint de grabación con POST
 router.post('/record', function(req, res, next) {
   const now = new Date();
-  const logfile_name = __dirname + '/../public/logs/' + req.body.id_nodo + "-" +
-    now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate() + '.csv';
+  const logfile_name = path.join(logsDir, req.body.id_nodo + "-" +
+    now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate() + '.csv');
 
   const content = `${req.body.id_nodo};${now.getTime()};${req.body.temperatura};${req.body.humedad};${req.body.co2};${req.body.volatiles}\r\n`;
 
-  // Verifica si el archivo ya existe
   fs.stat(logfile_name, function(err, stat) {
     if (err == null) {
-      // Si el archivo existe, agrega el contenido
       append2file(logfile_name, content);
     } else if (err.code === 'ENOENT') {
-      // Si el archivo no existe, crea el archivo con el encabezado
       const header = 'id_nodo;timestamp;temperatura;humedad;CO2;volatiles\r\n';
       append2file(logfile_name, header + content);
     } else {
