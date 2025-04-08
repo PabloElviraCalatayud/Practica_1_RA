@@ -1,4 +1,4 @@
-const createMiddleware = require('./middleware');
+const createMiddleware = require('./middleware.js');
 const httpProxy = require('http-proxy');
 const express = require('express');
 
