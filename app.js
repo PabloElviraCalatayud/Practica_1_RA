@@ -14,7 +14,8 @@ let current = 0;
 
 app.use((req, res) => {
   const target = servers[current];
-  current = (current + 1) % servers.length; // Round-robin
+  console.log(`[Balancer] Proxying request to ${target}${req.url}`);
+  current = (current + 1) % servers.length;
 
   proxy.web(req, res, { target }, (err) => {
     console.error(`Error proxying request to ${target}:`, err);

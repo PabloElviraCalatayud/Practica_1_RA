@@ -13,6 +13,7 @@ function createMiddleware(port) {
 
   app.set('views', path.join(__dirname, 'views'));
   app.set('view engine', 'ejs');
+  app.set('port', port); // Esto es clave para mostrar el puerto en las respuestas
 
   app.use(logger('dev'));
   app.use(express.json());
@@ -20,10 +21,17 @@ function createMiddleware(port) {
   app.use(cookieParser());
   app.use(express.static(path.join(__dirname, 'public')));
 
-  app.use('/', indexRouter);
-  app.use('/users', usersRouter);
   app.use('/logs', serveIndex(path.join(__dirname, 'public/logs')));
   app.use('/logs', express.static(path.join(__dirname, 'public/logs')));
+
+  // Logging personalizado para saber cuál middleware responde
+  app.use((req, res, next) => {
+    console.log(`[Middleware ${port}] Received request: ${req.method} ${req.url}`);
+    next();
+  });
+
+  app.use('/', indexRouter);
+  app.use('/users', usersRouter);
 
   // Catch 404
   app.use(function (req, res, next) {
