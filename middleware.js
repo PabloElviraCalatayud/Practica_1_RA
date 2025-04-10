@@ -1,3 +1,4 @@
+const chalk = require('chalk');
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -26,7 +27,7 @@ function createMiddleware(port) {
 
   // Logging personalizado para saber cuál middleware responde
   app.use((req, res, next) => {
-    console.log(`[Middleware ${port}] Received request: ${req.method} ${req.url}`);
+    console.log(chalk.blue(`[Middleware]`), chalk.yellow(`Port ${port}`), `Received request: ${req.method} ${req.url}`);
     next();
   });
 
@@ -47,7 +48,7 @@ function createMiddleware(port) {
   });
 
   app.listen(port, () => {
-    console.log(`Middleware running on port ${port}`);
+    console.log(chalk.blue('[Middleware]'), chalk.yellow(`Middleware running on port ${port}`));
   });
 
   return app;
