@@ -41,8 +41,6 @@ function publishClima(data) {
       console.error(chalk.redBright(`Error al publicar en el topic 'clima':`), err);
     } else {
       console.log(chalk.greenBright(`Datos publicados en 'clima': ${payload}`));
-      // Guardar el mensaje en un log
-      saveLog('clima', payload);
     }
   });
 }
@@ -58,33 +56,6 @@ function publishGases(data) {
       console.error(chalk.redBright(`Error al publicar en el topic 'gases':`), err);
     } else {
       console.log(chalk.greenBright(`Datos publicados en 'gases': ${payload}`));
-      // Guardar el mensaje en un log
-      saveLog('gases', payload);
-    }
-  });
-}
-
-// Función para guardar el log del mensaje en un archivo
-function saveLog(topic, message) {
-  const logDir = path.join(__dirname, '../public', 'logs', topic); // Ruta para la carpeta del topic
-  const timestamp = new Date().toISOString(); // Marca de tiempo
-  const logMessage = `[${timestamp}] ${message}\n`; // Formato del log
-
-  // Verificar si la carpeta existe, si no, crearla
-  if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir, { recursive: true });
-  }
-
-  // Nombre del archivo basado en la fecha actual
-  const logFileName = `${topic}-${timestamp}.log`;
-  const logFilePath = path.join(logDir, logFileName);
-
-  // Escribir el mensaje en el archivo
-  fs.appendFile(logFilePath, logMessage, (err) => {
-    if (err) {
-      console.error(chalk.redBright(`Error al escribir el log para el topic '${topic}':`), err);
-    } else {
-      console.log(chalk.magenta(`[LOG WRITE] Log guardado para el topic '${topic}': ${logFilePath}`));
     }
   });
 }

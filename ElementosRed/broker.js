@@ -15,6 +15,22 @@ function startBroker() {
 
   client.on('connect', () => {
     console.log(chalk.greenBright('Cliente conectado al broker MQTT'));
+
+    client.subscribe('clima', (err) => {
+      if (!err) {
+        console.log(chalk.magentaBright('Suscrito al topic "clima"'));
+        const payload = JSON.stringify({ temperatura: 21.5, humedad: 60 });
+        client.publish('clima', payload, () => {
+          console.log(chalk.yellowBright('Mensaje publicado en el topic "clima"'));
+        });
+      } else {
+        console.error(chalk.red('Error al suscribirse al topic "clima":'), err);
+      }
+    });
+  });
+
+  client.on('message', (topic, message) => {
+    console.log(chalk.cyan(`Mensaje recibido en ${topic}: ${message.toString()}`));
   });
 
   client.on('error', (err) => {
