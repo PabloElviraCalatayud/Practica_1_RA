@@ -19,7 +19,7 @@ function startBroker() {
     client.subscribe('clima', (err) => {
       if (!err) {
         console.log(chalk.magentaBright('Suscrito al topic "clima"'));
-        const payload = JSON.stringify({ temperatura: 21.5, humedad: 60 });
+        const payload = JSON.stringify({ id_nodo: "Nav1", temperatura: 21.5, humedad: 60 });
         client.publish('clima', payload, () => {
           console.log(chalk.yellowBright('Mensaje publicado en el topic "clima"'));
         });

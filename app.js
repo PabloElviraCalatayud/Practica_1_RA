@@ -1,7 +1,7 @@
 const createMiddleware = require('./ElementosRed/middleware');
 const { startLoadBalancer } = require('./ElementosRed/balanceador');
 const { startBroker } = require('./ElementosRed/broker');
-const { createPersistenceMiddleware } = require('./ElementosRed/persistencia');
+const { createPersistenceMiddleware } = require('./ElementosRed/middleware_persistente');
 
 // Inicia el broker
 startBroker();
