@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://wadl.dev.java.net/2009/02">
+  <resources base="http://localhost:3001">
+    <resource path="/record">
+      <method name="POST">
+        <request>
+          <param name="id_nodo" style="query" type="xsd:string"/>
+          <param name="temperatura" style="query" type="xsd:float"/>
+          <param name="humedad" style="query" type="xsd:float"/>
+          <param name="co2" style="query" type="xsd:float"/>
+          <param name="volatiles" style="query" type="xsd:float"/>
+        </request>
+        <response status="200">
+          <representation mediaType="application/json">
+            <param name="status" type="xsd:string"/>
+          </representation>
+        </response>
+      </method>
+    </resource>
+
+    <resource path="/alertas">
+      <method name="GET">
+        <response status="200">
+          <representation mediaType="application/json">
+            <param name="alertas" type="xsd:string"/>
+          </representation>
+        </response>
+      </method>
+    </resource>
+  </resources>
+</application>
