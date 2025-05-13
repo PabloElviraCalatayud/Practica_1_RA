@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const numRequests = 100;           // Número total de peticiones a enviar
+const numRequests = 5;           // Número total de peticiones a enviar
 const intervalMs = 2000;           // Intervalo entre peticiones en milisegundos (2000 ms = 2s)
 let sentRequests = 0;              // Contador de peticiones enviadas
 

@@ -1,8 +1,8 @@
 const fetch = require('node-fetch');
 
 // Reemplaza con tu token de bot y tu ID de chat
-const TELEGRAM_TOKEN = '7866004046:AAHJvUb8jUFojuPiEOCpDhz5p2JEeqSTupU';
-const CHAT_ID = 'YOUR_CHAT_ID';
+const TELEGRAM_TOKEN = '7854969368:AAH1WD16zW0VacpMOx0SR5nj864a79AKf4Q';
+const CHAT_ID = '5790400043';
 
 async function sendTelegramAlert(message) {
   const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
