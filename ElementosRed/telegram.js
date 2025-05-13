@@ -1,3 +1,4 @@
+//Comentar en el servidor
 const fetch = require('node-fetch');
 
 // Reemplaza con tu token de bot y tu ID de chat

@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');  // Importa chalk para agregar color a los logs
 const { sendTelegramAlert } = require('./telegram');  // Importamos la función para enviar alertas por Telegram
+const TokenBucket = require('./TokenBucket');  // Importamos la clase TokenBucket
 
 // Definir los umbrales
 const thresholds = {
@@ -13,6 +14,9 @@ const thresholds = {
   volatiles: { min: 10, max: 50 }
 };
 
+// Crear el token bucket (n tokens por segundo, capacidad de m tokens)
+const bucket = new TokenBucket(1, 3);
+
 function createMiddleware(port) {
   const app = express();
   app.use(express.json());  // Para procesar los datos JSON
@@ -21,11 +25,17 @@ function createMiddleware(port) {
   app.post('/record', (req, res) => {
     const { id_nodo, temperatura, humedad, co2, volatiles } = req.body;
 
+    // Verificar si hay tokens disponibles para continuar
+    if (!bucket.tryConsume()) {
+      console.error(chalk.redBright('Error: demasiadas solicitudes, no hay tokens disponibles.'));
+      return res.status(429).json({ status: 'Too many requests, try again later' });
+    }
+
     // Verificar si los valores están dentro de los baremos
     const alertas = verificarBaremos({ temperatura, humedad, co2, volatiles });
 
+    // Si hay alertas, enviarlas por Telegram
     if (alertas.length > 0) {
-      // Si hay alertas, enviarlas por Telegram
       alertas.forEach(alerta => sendTelegramAlert(alerta));
     }
 
@@ -54,7 +64,6 @@ function createMiddleware(port) {
 function verificarBaremos(datos) {
   const alertas = [];
 
-  // Comparar cada valor con su umbral
   if (datos.temperatura < thresholds.temperatura.min || datos.temperatura > thresholds.temperatura.max) {
     alertas.push(`Alerta: Temperatura fuera de rango: ${datos.temperatura}°C`);
   }
@@ -76,7 +85,6 @@ function publishClima(data) {
   const { id_nodo, temperatura, humedad } = data;
   const payload = JSON.stringify({ id_nodo, temperatura, humedad });
 
-  // Publicar el mensaje en el broker
   client.publish('clima', payload, (err) => {
     if (err) {
       console.error(chalk.redBright(`Error al publicar en el topic 'clima':`), err);
@@ -91,7 +99,6 @@ function publishGases(data) {
   const { id_nodo, co2, volatiles } = data;
   const payload = JSON.stringify({ id_nodo, co2, volatiles });
 
-  // Publicar el mensaje en el broker
   client.publish('gases', payload, (err) => {
     if (err) {
       console.error(chalk.redBright(`Error al publicar en el topic 'gases':`), err);

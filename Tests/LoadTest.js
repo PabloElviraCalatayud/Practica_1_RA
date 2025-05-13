@@ -1,7 +1,7 @@
 const axios = require('axios');
 
-const numRequests = 5;           // Número total de peticiones a enviar
-const intervalMs = 2000;           // Intervalo entre peticiones en milisegundos (2000 ms = 2s)
+const numRequests = 100;           // Número total de peticiones a enviar
+const intervalMs = 100;           // Intervalo entre peticiones en milisegundos (2000 ms = 2s)
 let sentRequests = 0;              // Contador de peticiones enviadas
 
 // Función para generar datos aleatorios para el POST
@@ -23,7 +23,7 @@ function sendPostRequest() {
     headers: { 'Content-Type': 'application/json' }
   })
   .then((response) => {
-    console.log(`POST ${sentRequests + 1}/${numRequests} exitoso:`, response.status);
+    console.log(`POST ${sentRequests}/${numRequests} exitoso:`, response.status);
   })
   .catch((error) => {
     console.error('Error en POST:', error.message);
