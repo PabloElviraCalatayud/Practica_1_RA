@@ -10,7 +10,7 @@ function createPersistenceMiddleware() {
   const db = mysql.createConnection({
     host: 'localhost',
     user: 'user',        // Cambia por tu usuario MySQL
-    password: 'savePassword123', // Cambia por tu contraseña
+    password: 'safePassword123', // Cambia por tu contraseña
     database: 'datos_sensores'
   });
 

@@ -3,16 +3,15 @@
 #include <WiFiClient.h>
 #include <base64.h>  // Librería base64 integrada en el core ESP8266
 
-const char* ssid     = "Livebox6-4C03";//Nombre de la wifi
-const char* password = "HkFvfd9G6fLx"; //Contraseña de la wifi
-String serverPath = "http://192.168.1.20:5000/record"; //<IP_SERVIDOR_NODE.js>:<PUERTO>/<Lugar en el que hacer el POST>
+const char* ssid     = "XXXXXXXXXX";//Nombre de la wifi
+String serverPath = "http://XXXXXXXXXX:5000/record"; //<IP_SERVIDOR_NODE.js>:<PUERTO>/<Lugar en el que hacer el POST>
 
 
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  
+
   Serial.print("Conectando a WiFi");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
