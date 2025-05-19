@@ -1,6 +1,7 @@
 const express = require('express');
-const { client } = require('./broker');
+const path = require('path');
 const chalk = require('chalk');
+const { client } = require('./broker');
 const { sendTelegramAlert } = require('./telegram');
 const TokenBucket = require('./TokenBucket');
 
@@ -18,7 +19,26 @@ function createMiddleware(port) {
   app.use(express.json());
 
   app.post('/record', (req, res) => {
-    const { id_nodo, temperatura, humedad, co2, volatiles } = req.body;
+    const { data } = req.body;
+    if (!data) {
+      return res.status(400).json({ error: "Falta campo 'data' con Base64" });
+    }
+
+    let jsonString;
+    try {
+      jsonString = Buffer.from(data, 'base64').toString('utf-8');
+    } catch (err) {
+      return res.status(400).json({ error: "Error decodificando Base64" });
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonString);
+    } catch (err) {
+      return res.status(400).json({ error: "JSON inválido después de decodificar Base64" });
+    }
+
+    const { id_nodo, temperatura, humedad, co2, volatiles } = parsed;
 
     if (!bucket.tryConsume()) {
       console.error(chalk.redBright('Error: demasiadas solicitudes, no hay tokens disponibles.'));
@@ -29,7 +49,6 @@ function createMiddleware(port) {
     const parametrosFueraDeRango = verificarBaremos({ temperatura, humedad, co2, volatiles });
 
     if (parametrosFueraDeRango.length > 0) {
-      // Construir mensaje único para Telegram
       let mensajeAlerta = `Alerta para nodo ${id_nodo}:\n`;
       mensajeAlerta += `Parámetros recibidos:\n`;
       mensajeAlerta += ` - Temperatura: ${temperatura}°C\n`;
