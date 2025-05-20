@@ -5,7 +5,6 @@ const chalk = require('chalk');
 const { client } = require('./broker');
 const { sendTelegramAlert } = require('./telegram');
 const TokenBucket = require('./TokenBucket');
-const { isBlacklisted } = require('./blacklist'); // <-- Añadido
 
 const thresholds = {
   temperatura: { min: 15, max: 30 },
@@ -19,19 +18,6 @@ const bucket = new TokenBucket(1, 3);
 function createMiddleware(port) {
   const app = express();
   app.use(express.json());
-
-  // Middleware de filtrado de IPs (lista negra)
-  app.use((req, res, next) => {
-    const ip = req.ip || req.connection.remoteAddress;
-    const cleanIP = ip.replace(/^::ffff:/, '');
-
-    if (isBlacklisted(cleanIP)) {
-      console.warn(chalk.yellowBright(`Conexión bloqueada desde IP prohibida: ${cleanIP}`));
-      return res.status(403).json({ error: 'Acceso denegado desde esta IP' });
-    }
-
-    next();
-  });
 
   app.post('/record', (req, res) => {
     const { data } = req.body;
@@ -88,7 +74,7 @@ function createMiddleware(port) {
     res.sendFile(path.join(__dirname, 'api.wadl'));
   });
 
-  const PORT = port || 5000;
+  const PORT = port || 4000;
   app.listen(PORT, () => {
     console.log(chalk.blueBright(`Middleware corriendo en el puerto ${PORT}`));
   });
@@ -140,4 +126,3 @@ function publishGases(data) {
 }
 
 module.exports = createMiddleware;
-
