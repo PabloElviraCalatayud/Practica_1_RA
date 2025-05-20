@@ -1,9 +1,11 @@
+// createMiddleware.js
 const express = require('express');
 const path = require('path');
 const chalk = require('chalk');
 const { client } = require('./broker');
 const { sendTelegramAlert } = require('./telegram');
 const TokenBucket = require('./TokenBucket');
+const { isBlacklisted } = require('./blacklist'); // <-- Añadido
 
 const thresholds = {
   temperatura: { min: 15, max: 30 },
@@ -17,6 +19,19 @@ const bucket = new TokenBucket(1, 3);
 function createMiddleware(port) {
   const app = express();
   app.use(express.json());
+
+  // Middleware de filtrado de IPs (lista negra)
+  app.use((req, res, next) => {
+    const ip = req.ip || req.connection.remoteAddress;
+    const cleanIP = ip.replace(/^::ffff:/, '');
+
+    if (isBlacklisted(cleanIP)) {
+      console.warn(chalk.yellowBright(`Conexión bloqueada desde IP prohibida: ${cleanIP}`));
+      return res.status(403).json({ error: 'Acceso denegado desde esta IP' });
+    }
+
+    next();
+  });
 
   app.post('/record', (req, res) => {
     const { data } = req.body;
@@ -45,7 +60,6 @@ function createMiddleware(port) {
       return res.status(429).json({ status: 'Too many requests, try again later' });
     }
 
-    // Detectar parámetros fuera de rango
     const parametrosFueraDeRango = verificarBaremos({ temperatura, humedad, co2, volatiles });
 
     if (parametrosFueraDeRango.length > 0) {
