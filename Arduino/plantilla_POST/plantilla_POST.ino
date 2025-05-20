@@ -4,6 +4,7 @@
 #include <base64.h>  // Librería base64 integrada en el core ESP8266
 
 const char* ssid     = "XXXXXXXXXX";//Nombre de la wifi
+const char* password = "XXXXXXXXXXXXXXX"; //Contraseña wifi
 String serverPath = "http://XXXXXXXXXX:5000/record"; //<IP_SERVIDOR_NODE.js>:<PUERTO>/<Lugar en el que hacer el POST>
 
 
