@@ -1,9 +1,9 @@
 // app.js
-const createMiddleware = require('./ElementosRed/middleware');
-const { startLoadBalancer } = require('./ElementosRed/balanceador');
-const { startBroker } = require('./ElementosRed/broker');
-const { createPersistenceMiddleware } = require('./ElementosRed/middleware_persistente');
-const { startBlacklistMiddleware } = require('./ElementosRed/middleware_blacklist');
+const createMiddleware = require('./GestoresPeticiones/middleware');
+const { startLoadBalancer } = require('./ControlAcceso/balanceador');
+const { startBroker } = require('./GestoresPeticiones/broker');
+const { createPersistenceMiddleware } = require('./Servicios/middleware_persistente');
+const { startBlacklistMiddleware } = require('./ControlAcceso/middleware_blacklist');
 
 // Inicia el broker MQTT
 startBroker();

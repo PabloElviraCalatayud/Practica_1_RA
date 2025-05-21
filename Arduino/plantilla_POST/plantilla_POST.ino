@@ -5,7 +5,7 @@
 
 const char* ssid     = "XXXXXXXXXX";//Nombre de la wifi
 const char* password = "XXXXXXXXXXXXXXX"; //Contraseña wifi
-String serverPath = "http://XXXXXXXXXX:5000/record"; //<IP_SERVIDOR_NODE.js>:<PUERTO>/<Lugar en el que hacer el POST>
+String serverPath = "http://XXXXXXXXXX:/record"; //<IP_SERVIDOR_NODE.js>:<PUERTO>/<Lugar en el que hacer el POST>
 
 
 void setup() {

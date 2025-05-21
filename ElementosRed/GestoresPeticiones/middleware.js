@@ -3,8 +3,8 @@ const express = require('express');
 const path = require('path');
 const chalk = require('chalk');
 const { client } = require('./broker');
-const { sendTelegramAlert } = require('./telegram');
-const TokenBucket = require('./TokenBucket');
+const { sendTelegramAlert } = require('../Servicios/telegram');
+const TokenBucket = require('../ControlAcceso/TokenBucket');
 
 const thresholds = {
   temperatura: { min: 15, max: 30 },
