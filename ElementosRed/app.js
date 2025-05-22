@@ -1,9 +1,9 @@
-// app.js
 const createMiddleware = require('./GestoresPeticiones/middleware');
 const { startLoadBalancer } = require('./ControlAcceso/balanceador');
 const { startBroker } = require('./GestoresPeticiones/broker');
 const { createPersistenceMiddleware } = require('./Servicios/middleware_persistente');
 const { startBlacklistMiddleware } = require('./ControlAcceso/middleware_blacklist');
+const { startAlertasSuscriptor } = require('./Servicios/alertas-suscriptor');
 
 // Inicia el broker MQTT
 startBroker();
@@ -20,3 +20,7 @@ createPersistenceMiddleware();
 
 // Inicia el middleware de control de acceso por IP en el puerto 5000
 startBlacklistMiddleware();
+
+// Inicia el suscriptor de alertas
+startAlertasSuscriptor();
+

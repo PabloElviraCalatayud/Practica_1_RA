@@ -3,15 +3,7 @@ const express = require('express');
 const path = require('path');
 const chalk = require('chalk');
 const { client } = require('./broker');
-const { sendTelegramAlert } = require('../Servicios/telegram');
 const TokenBucket = require('../ControlAcceso/TokenBucket');
-
-const thresholds = {
-  temperatura: { min: 15, max: 30 },
-  humedad: { min: 30, max: 70 },
-  co2: { min: 300, max: 1000 },
-  volatiles: { min: 10, max: 50 }
-};
 
 const bucket = new TokenBucket(1, 3);
 
@@ -46,27 +38,10 @@ function createMiddleware(port) {
       return res.status(429).json({ status: 'Too many requests, try again later' });
     }
 
-    const parametrosFueraDeRango = verificarBaremos({ temperatura, humedad, co2, volatiles });
-
-    if (parametrosFueraDeRango.length > 0) {
-      let mensajeAlerta = `Alerta para nodo ${id_nodo}:\n`;
-      mensajeAlerta += `Parámetros recibidos:\n`;
-      mensajeAlerta += ` - Temperatura: ${temperatura}°C\n`;
-      mensajeAlerta += ` - Humedad: ${humedad}%\n`;
-      mensajeAlerta += ` - CO2: ${co2} ppm\n`;
-      mensajeAlerta += ` - Volátiles: ${volatiles}\n\n`;
-      mensajeAlerta += `Parámetros fuera de rango:\n`;
-      parametrosFueraDeRango.forEach(param => {
-        mensajeAlerta += ` - ${param}\n`;
-      });
-
-      sendTelegramAlert(mensajeAlerta);
-    }
-
     publishClima({ id_nodo, temperatura, humedad });
     publishGases({ id_nodo, co2, volatiles });
 
-    res.status(200).json({ status: 'Datos publicados en MQTT (clima y gases)', alertas: parametrosFueraDeRango });
+    res.status(200).json({ status: 'Datos publicados en MQTT (clima y gases)' });
   });
 
   app.get('/wadl', (req, res) => {
@@ -78,25 +53,6 @@ function createMiddleware(port) {
   app.listen(PORT, () => {
     console.log(chalk.blueBright(`Middleware corriendo en el puerto ${PORT}`));
   });
-}
-
-function verificarBaremos(datos) {
-  const alertas = [];
-
-  if (datos.temperatura < thresholds.temperatura.min || datos.temperatura > thresholds.temperatura.max) {
-    alertas.push(`Temperatura fuera de rango: ${datos.temperatura}°C`);
-  }
-  if (datos.humedad < thresholds.humedad.min || datos.humedad > thresholds.humedad.max) {
-    alertas.push(`Humedad fuera de rango: ${datos.humedad}%`);
-  }
-  if (datos.co2 < thresholds.co2.min || datos.co2 > thresholds.co2.max) {
-    alertas.push(`CO2 fuera de rango: ${datos.co2} ppm`);
-  }
-  if (datos.volatiles < thresholds.volatiles.min || datos.volatiles > thresholds.volatiles.max) {
-    alertas.push(`Volátiles fuera de rango: ${datos.volatiles}`);
-  }
-
-  return alertas;
 }
 
 function publishClima(data) {
@@ -126,3 +82,4 @@ function publishGases(data) {
 }
 
 module.exports = createMiddleware;
+
