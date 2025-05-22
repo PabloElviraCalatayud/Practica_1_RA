@@ -1,9 +1,9 @@
-// createMiddleware.js
 const express = require('express');
 const path = require('path');
 const chalk = require('chalk');
 const { client } = require('./broker');
 const TokenBucket = require('../ControlAcceso/TokenBucket');
+const { decryptAES128 } = require('../Utils/aes'); // ajusta la ruta si es necesario
 
 const bucket = new TokenBucket(1, 3);
 
@@ -14,21 +14,28 @@ function createMiddleware(port) {
   app.post('/record', (req, res) => {
     const { data } = req.body;
     if (!data) {
-      return res.status(400).json({ error: "Falta campo 'data' con Base64" });
+      return res.status(400).json({ error: "Falta campo 'data' cifrado en Base64" });
     }
+
+    // Mostrar el contenido cifrado (Base64)
+    console.log(chalk.yellowBright('[Recibido] Payload cifrado (Base64):'), data);
 
     let jsonString;
     try {
-      jsonString = Buffer.from(data, 'base64').toString('utf-8');
+      jsonString = decryptAES128(data);
     } catch (err) {
-      return res.status(400).json({ error: "Error decodificando Base64" });
+      console.error(chalk.redBright('Error al descifrar el mensaje AES-128:'), err.message);
+      return res.status(400).json({ error: "Error al descifrar el mensaje AES-128" });
     }
+
+    // Mostrar el JSON descifrado
+    console.log(chalk.cyanBright('[Descifrado] Contenido JSON:'), jsonString);
 
     let parsed;
     try {
       parsed = JSON.parse(jsonString);
     } catch (err) {
-      return res.status(400).json({ error: "JSON inválido después de decodificar Base64" });
+      return res.status(400).json({ error: "JSON inválido después del descifrado" });
     }
 
     const { id_nodo, temperatura, humedad, co2, volatiles } = parsed;
