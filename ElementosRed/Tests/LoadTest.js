@@ -2,7 +2,7 @@ const axios = require('axios');
 const crypto = require('crypto');
 
 const numRequests = 100;
-const intervalMs = 1000;
+const intervalMs = 100;
 let sentRequests = 0;
 
 // Clave e IV AES-128-CBC (deben coincidir con el middleware)
@@ -43,7 +43,7 @@ function sendPostRequest() {
     return;
   }
 
-  axios.post('http://localhost:5000/record', { data: encryptedBase64 }, {
+  axios.post('http://localhost:4000/record', { data: encryptedBase64 }, {
     headers: { 'Content-Type': 'application/json' }
   })
     .then((response) => {
