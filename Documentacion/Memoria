@@ -1,0 +1,30 @@
+Funcionamiento del arduino:
+  +Seguir el procedimiento que pone en la memoria de Dani.
+  +Explicar la codificacion en AES y los problemas que tiene el modelo actual:
+    -Ha sido necesario usar un buffer para descifrar correctamente el mensaje.
+    -Missmatch de padding entre arduino y la parte en Node.
+  +Comentar las librerías usadas y explicar por encima el funcionamiento de cada una. Decir para que se usan.
+  +Comentar que el post siempre se realiza con el mismo AES y por qué.
+    
+Funcionamiento del servidor:
+  +Comentar cada uno de los scripts y que funcion desempeñan en el servidor.
+  +Comentar las decisiones de diseño.
+  +Comentar la arquitectura de la red.
+  +Revisar que todos los elementos tengan sus descriptores correspondientes.
+  +Comandos para poder usar el servidor:
+    + node Practica_1_RA/ElementosRed/app.js //Empleado para lanzar el servidor.
+    + node Practica_1_RA/ElementosRed/Test/LoadTest.js //Empleado para usar un test que muestra el funcionamiento del Token Bucket
+    + node Practica_1_RA/ElementosRed/Test/SlowLoadTest.js //Empleado para ver el funcionamiento de toda la red.
+
+Funcionamiento de los servicios externos:
+  +Funcionamiento y arquitectura de la base de datos(explicar la forma de las tablas).
+  +Funcionamiento de las conexiones con los elementos externos al servidor:
+    -MySQL
+      *Explicar los usuarios creados y por qué se ha elegido mysql.
+      *Recalcar puerto en el que está la BBDD.
+    -Grafana
+      *Explicar que puerto usa.
+      *Explicar la configuración del panel de visualización.
+
+
+
