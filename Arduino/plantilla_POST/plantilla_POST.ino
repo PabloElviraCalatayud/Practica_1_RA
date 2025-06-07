@@ -1,15 +1,54 @@
 #include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
-#include <base64.h>  // Librería base64 integrada en el core ESP8266
+#include <AESLib.h>
+#include <base64.h>
 
-const char* ssid     = "XXXXXXXXXX";//Nombre de la wifi
-const char* password = "XXXXXXXXXXXXXXX"; //Contraseña wifi
-String serverPath = "http://XXXXXXXXXX:/record"; //<IP_SERVIDOR_NODE.js>:<PUERTO>/<Lugar en el que hacer el POST>
+const char* ssid = "1111";
+const char* password = "12345678";
 
+AESLib aesLib;
+
+// Clave AES-128 (16 bytes)
+byte aes_key[] = {
+  0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF,
+  0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF
+};
+
+// IV (16 bytes) – debe ser el mismo en el servidor
+byte aes_iv[] = {
+  0xAB, 0xCD, 0xEF, 0x12, 0x34, 0x56, 0x78, 0x90,
+  0xAB, 0xCD, 0xEF, 0x12, 0x34, 0x56, 0x78, 0x90
+};
+
+// Cifra el mensaje usando AES-128 CBC con PKCS#7 y lo devuelve en Base64
+String encryptToBase64(String msg) {
+  const int blockSize = 16;
+  int msgLen = msg.length();               // longitud sin el '\0'
+  int padLen = blockSize - (msgLen % blockSize);  // bytes de padding
+  int totalLen = msgLen + padLen;
+
+  byte input[totalLen];
+
+  // Copiar datos del mensaje
+  for (int i = 0; i < msgLen; i++) {
+    input[i] = msg[i];
+  }
+
+  // Añadir padding PKCS#7
+  for (int i = msgLen; i < totalLen; i++) {
+    input[i] = padLen;
+  }
+
+  byte encrypted[totalLen + blockSize]; // margen extra
+  byte iv_copy[sizeof(aes_iv)];
+  memcpy(iv_copy,aes_iv,sizeof(aes_iv));
+  int encLen = aesLib.encrypt(input, totalLen, encrypted, aes_key, sizeof(aes_key), iv_copy);
+
+  return base64::encode(encrypted, encLen);
+}
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
@@ -18,44 +57,28 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
-  
+
   Serial.println();
   Serial.print("Conectado. IP: ");
   Serial.println(WiFi.localIP());
 }
 
 void loop() {
-  if (WiFi.status() == WL_CONNECTED) {
-    WiFiClient client;
-    HTTPClient http;
+  String jsonData = "{\"id_nodo\":\"nodoPrueba4\",\"temperatura\":53.7,\"humedad\":8,\"co2\":0.1,\"volatiles\":911}";
 
-    // JSON original
-    String jsonData = "{\"id_nodo\":\"nodoPrueba4\",\"temperatura\":53.7,\"humedad\":8,\"co2\":0.1,\"volatiles\":911}";
+  // Cifrar y codificar
+  String encryptedBase64 = encryptToBase64(jsonData);
 
-    // Codificamos a Base64
-    String jsonBase64 = base64::encode((const uint8_t*)jsonData.c_str(), jsonData.length());
-    
-    // Preparamos la carga POST con el campo "data" que contendrá el JSON codificado
-    String payload = "{\"data\":\"" + jsonBase64 + "\"}";
+  // Montar mensaje JSON para enviar por Serial
+  String mensaje = "{\"url\":\"http://10.100.0.101:5000/record\",\"data\":\"" + encryptedBase64 + "\"}";
+  Serial.println(mensaje);
 
-    http.begin(client, serverPath.c_str());
-    http.addHeader("Content-Type", "application/json");
-    
-    int httpResponseCode = http.POST(payload);
-
-    if (httpResponseCode > 0) {
-      String response = http.getString();
-      Serial.println("Respuesta servidor:");
-      Serial.println(response);
-    } else {
-      Serial.print("Error en la petición: ");
-      Serial.println(httpResponseCode);
-    }
-
-    http.end();
-  } else {
-    Serial.println("WiFi no conectado");
+  // Leer posible respuesta
+  if (Serial.available()) {
+    String respuesta = Serial.readStringUntil('\n');
+    Serial.println("Respuesta del servidor:");
+    Serial.println(respuesta);
   }
 
-  delay(2000);  // Espera n segundos antes de enviar otra vez
+  delay(5000);  // Esperar 5 segundos antes de repetir
 }
